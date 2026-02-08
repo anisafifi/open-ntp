@@ -1,6 +1,6 @@
 services:
   open-ntp:
-    image: open-ntp:latest
+    image: ghcr.io/anisafifi/open-ntp
     container_name: open-ntp
     restart: unless-stopped
     ports:
@@ -15,11 +15,11 @@ services:
     environment:
       - NEXT_PUBLIC_NTP_EXPOSED=${NEXT_PUBLIC_NTP_EXPOSED:-false}
       - NEXT_PUBLIC_NTP_HOST=${NEXT_PUBLIC_NTP_HOST:-localhost}
-      - NEXT_PUBLIC_TIMEZONES=${NEXT_PUBLIC_TIMEZONES:-UTC,America/New_York,Europe/London,Asia/Tokyo}
+      - NEXT_PUBLIC_TIMEZONES=${NEXT_PUBLIC_TIMEZONES:-Bangladesh|Asia/Dhaka, New York|America/New_York, Tokyo|Asia/Tokyo, London|Europe/London, Sydney|Australia/Sydney, Mumbai|Asia/Kolkata}
       - NEXT_PUBLIC_DATE_FORMAT=${NEXT_PUBLIC_DATE_FORMAT:-YYYY-MM-DD}
       - NEXT_PUBLIC_TIME_FORMAT=${NEXT_PUBLIC_TIME_FORMAT:-HH:mm:ss}
       - NTP_SERVER_HOST=${NTP_SERVER_HOST:-127.0.0.1}
-      - NTP_FALLBACK_HOST=${NTP_FALLBACK_HOST:-time.google.com}
+      - NTP_FALLBACK_HOST=${NTP_FALLBACK_HOST:-time.hixbe.com}
       - NTP_TIMEOUT_MS=${NTP_TIMEOUT_MS:-2500}
     healthcheck:
       test: ["CMD-SHELL", "chronyc tracking >/dev/null 2>&1 && node -e \"fetch('http://localhost:3000/api/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""]
