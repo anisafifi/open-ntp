@@ -1,6 +1,9 @@
 services:
   open-ntp:
-    build: .
+    build:
+      context: .
+      args:
+        NODE_ENV: production
     container_name: open-ntp
     restart: unless-stopped
     ports:
