@@ -1,0 +1,29 @@
+services:
+  open-ntp:
+    build: .
+    container_name: open-ntp
+    restart: unless-stopped
+    ports:
+      - "123:123/udp"
+      - "3000:3000"
+    volumes:
+      - ./data:/var/lib/chrony
+    cap_add:
+      - SYS_TIME
+      - NET_BIND_SERVICE
+    environment:
+      - NEXT_PUBLIC_NTP_EXPOSED=${NEXT_PUBLIC_NTP_EXPOSED:-false}
+      - NEXT_PUBLIC_NTP_HOST=${NEXT_PUBLIC_NTP_HOST:-localhost}
+      - NEXT_PUBLIC_TIMEZONES=${NEXT_PUBLIC_TIMEZONES:-UTC,America/New_York,Europe/London,Asia/Tokyo}
+    healthcheck:
+      test: ["CMD-SHELL", "chronyc tracking >/dev/null 2>&1 && node -e \"fetch('http://localhost:3000/api/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    networks:
+      - ntpnet
+
+networks:
+  ntpnet:
+    driver: bridge

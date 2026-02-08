@@ -1,36 +1,93 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# OpenNTP
 
-## Getting Started
+OpenNTP ships a single Docker container that runs Chrony (NTP) and a Next.js UI. Every API response is NTP-backed with a fallback to Google NTP if the local Chrony server is unavailable.
 
-First, run the development server:
+![Screenshot](./screenshot.png)
+
+## What is included
+
+- Chrony configuration in [chrony/](chrony/)
+- Next.js UI with multi-timezone digital clocks
+- NTP-backed REST APIs and Swagger docs
+
+## Quick start (single container)
+
+Build and run the OpenNTP service:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+docker compose up -d --build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Default ports:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- UDP/123 for NTP
+- HTTP/3000 for the UI and APIs
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Set up your own NTP server
 
-## Learn More
+OpenNTP uses Chrony inside the container. To make it your own:
 
-To learn more about Next.js, take a look at the following resources:
+1) Edit the upstream sources and access rules in [chrony/chrony.conf](chrony/chrony.conf).
+2) If you want a private server, remove the UDP/123 mapping or restrict it with a firewall.
+3) Start the stack with `docker compose up -d --build`.
+4) Point your clients to your host on UDP/123.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Example client check:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+ntpdate -q <your-server-ip>
+```
 
-## Deploy on Vercel
+## Configuration
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Frontend (UI only):
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+NEXT_PUBLIC_NTP_EXPOSED=true|false
+NEXT_PUBLIC_NTP_HOST=ntp.example.com
+NEXT_PUBLIC_TIMEZONES=Bangladesh|Asia/Dhaka, New York|America/New_York
+```
+
+NTP sources:
+
+```bash
+NTP_SERVER_HOST=127.0.0.1
+NTP_FALLBACK_HOST=time.google.com
+NTP_TIMEOUT_MS=2500
+```
+
+The UI flags only change the display. Exposure is still controlled by Docker Compose and your firewall rules.
+
+## API endpoints
+
+- `GET /api/time` - NTP-backed time payload
+- `GET /api/timezones` - every Moment timezone with NTP time
+- `GET /api/health` - uptime, Chrony tracking, NTP metadata
+- `GET /api/openapi` - OpenAPI spec
+- `GET /docs` - Swagger UI
+
+Example response for `GET /api/time`:
+
+```json
+{
+	"nowIso": "2026-02-08T18:04:01.528Z",
+	"unix": 1770573841,
+	"timezone": "America/New_York",
+	"offsetMinutes": -300,
+	"source": "ntp",
+	"ntp": {
+		"host": "127.0.0.1",
+		"source": "local",
+		"warning": null
+	}
+}
+```
+
+## Local UI dev
+
+```bash
+npm install
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000).
