@@ -10,4 +10,4 @@ CHRONY_PID=$!
 
 trap 'kill $CHRONY_PID' TERM INT EXIT
 
-npm run start
+./node_modules/.bin/next start

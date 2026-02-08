@@ -5,8 +5,8 @@ Thanks for considering a contribution. This project welcomes issues, feature req
 ## Getting started
 
 - Use Node.js 20+.
-- Install dependencies: `npm install`.
-- Run the dev server: `npm run dev`.
+- Install dependencies: `pnpm install`.
+- Run the dev server: `pnpm run dev`.
 
 ## Reporting issues
 
@@ -18,7 +18,7 @@ Thanks for considering a contribution. This project welcomes issues, feature req
 
 - Keep changes focused and scoped.
 - Update docs when behavior changes.
-- Ensure formatting/linting passes: `npm run lint`.
+- Ensure formatting/linting passes: `pnpm run lint`.
 - Provide testing notes and screenshots for UI changes.
 
 ## Code style
